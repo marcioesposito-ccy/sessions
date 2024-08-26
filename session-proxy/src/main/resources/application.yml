@@ -1,0 +1,12 @@
+spring:
+  main:
+    banner-mode: off
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    properties:
+      hibernate.hbm2ddl.auto: create
