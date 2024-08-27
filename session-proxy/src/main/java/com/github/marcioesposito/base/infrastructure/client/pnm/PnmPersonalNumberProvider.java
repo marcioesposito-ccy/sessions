@@ -1,10 +1,10 @@
-package com.github.marcioesposito.base.infrastructure.client.crm;
+package com.github.marcioesposito.base.infrastructure.client.pnm;
 
 import com.github.marcioesposito.base.application.person.PersonalNumberProvider;
 import java.util.Random;
 import lombok.NonNull;
 
-public class CrmPersonalNumberProvider implements PersonalNumberProvider {
+public class PnmPersonalNumberProvider implements PersonalNumberProvider {
 
   @Override
   public Integer generateNumber() {
@@ -13,11 +13,6 @@ public class CrmPersonalNumberProvider implements PersonalNumberProvider {
 
   @Override
   public Integer changeNumber(@NonNull final Integer number) {
-    final var next = new Random().nextInt();
-    if (next == number) {
-      return changeNumber(number);
-    } else {
-      return next;
-    }
+    return number + 1;
   }
 }
