@@ -11,18 +11,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PersonApplicationService {
 
-  @NonNull private final PersonService service;
+  @NonNull private final PersonService personService;
 
-  @NonNull private final PersonalNumberProvider provider;
+  @NonNull private final PersonalNumberProvider personalNumberProvider;
 
   public Person create(@NonNull final PersonData data) {
-    final var number = provider.generateNumber();
-    return service.create(data, number);
+    final var number = personalNumberProvider.generateNumber();
+    return personService.create(data, number);
   }
 
   public Person renumber(@NonNull final Integer id) {
-    final var entity = service.find(id);
-    final var number = provider.changeNumber(entity.getNumber());
-    return service.renumber(entity, number);
+    final var entity = personService.find(id);
+    final var number = personalNumberProvider.changeNumber(entity.getNumber());
+    return personService.renumber(entity, number);
   }
 }

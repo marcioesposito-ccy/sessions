@@ -25,43 +25,43 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 @RequiredArgsConstructor
 public class PersonController {
 
-  @NonNull private final PersonService service;
+  @NonNull private final PersonService personService;
 
-  @NonNull private final PersonApplicationService applicationService;
+  @NonNull private final PersonApplicationService personApplicationService;
 
-  @NonNull private final PersonResponseAssembler responseAssembler;
+  @NonNull private final PersonResponseAssembler personResponseAssembler;
 
   @GetMapping
   public ResponseEntity<List<PersonResponse>> get() {
-    final var entities = service.findAll();
-    final var responses = responseAssembler.assemble(entities);
+    final var entities = personService.findAll();
+    final var responses = personResponseAssembler.assemble(entities);
     return ResponseEntity.ok(responses);
   }
 
   @GetMapping(path = "/{id}")
   public ResponseEntity<PersonResponse> get(@PathVariable("id") final Integer id) {
-    final var entity = service.find(id);
-    final var response = responseAssembler.assemble(entity);
+    final var entity = personService.find(id);
+    final var response = personResponseAssembler.assemble(entity);
     return ResponseEntity.ok(response);
   }
 
   @PostMapping
   public ResponseEntity<PersonResponse> post(@RequestBody final PersonRequest request) {
-    final var entity = applicationService.create(request);
-    final var response = responseAssembler.assemble(entity);
+    final var entity = personApplicationService.create(request);
+    final var response = personResponseAssembler.assemble(entity);
     return ResponseEntity.created(location(entity)).body(response);
   }
 
   @PutMapping(path = "/{id}:renumber")
   public ResponseEntity<PersonResponse> putRenumber(@PathVariable("id") final Integer id) {
-    final var entity = applicationService.renumber(id);
-    final var response = responseAssembler.assemble(entity);
+    final var entity = personApplicationService.renumber(id);
+    final var response = personResponseAssembler.assemble(entity);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping(path = "/{id}")
   public ResponseEntity<PersonResponse> delete(@PathVariable("id") final Integer id) {
-    service.delete(id);
+    personService.delete(id);
     return ResponseEntity.noContent().build();
   }
 
