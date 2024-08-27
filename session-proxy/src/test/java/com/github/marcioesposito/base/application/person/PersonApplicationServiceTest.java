@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.github.marcioesposito.base.application.featureflag.FeatureFlagManager;
 import com.github.marcioesposito.base.domain.person.Person;
 import com.github.marcioesposito.base.domain.person.PersonData;
 import com.github.marcioesposito.base.domain.person.PersonService;
@@ -29,11 +30,20 @@ class PersonApplicationServiceTest {
 
   @Mock private PersonService personService;
 
-  @Mock private PersonalNumberProvider personalNumberProvider;
+  @Mock private PersonalNumberProvider oldPersonalNumberProvider;
+
+  @Mock private PersonalNumberProvider newPersonalNumberProvider;
+
+  @Mock private FeatureFlagManager featureFlagManager;
 
   @BeforeEach
   void onBeforeEach() {
-    subject = new PersonApplicationService(personService, personalNumberProvider);
+    subject =
+        new PersonApplicationService(
+            personService,
+            oldPersonalNumberProvider,
+            newPersonalNumberProvider,
+            featureFlagManager);
   }
 
   // ----------------------- //
@@ -43,14 +53,40 @@ class PersonApplicationServiceTest {
   @Test
   @SuppressWarnings("DataFlowIssue")
   void constructor_WhenPersonServiceIsNull_ThenThrowsIllegalArgumentException() {
-    final Executable executable = () -> new PersonApplicationService(null, personalNumberProvider);
+    final Executable executable =
+        () ->
+            new PersonApplicationService(
+                null, oldPersonalNumberProvider, newPersonalNumberProvider, featureFlagManager);
     assertThrows(IllegalArgumentException.class, executable);
   }
 
   @Test
   @SuppressWarnings("DataFlowIssue")
-  void constructor_WhenPersonalNumberProviderIsNull_ThenThrowsIllegalArgumentException() {
-    final Executable executable = () -> new PersonApplicationService(personService, null);
+  void constructor_WhenOldPersonalNumberProviderIsNull_ThenThrowsIllegalArgumentException() {
+    final Executable executable =
+        () ->
+            new PersonApplicationService(
+                personService, null, newPersonalNumberProvider, featureFlagManager);
+    assertThrows(IllegalArgumentException.class, executable);
+  }
+
+  @Test
+  @SuppressWarnings("DataFlowIssue")
+  void constructor_WhenNewPersonalNumberProviderIsNull_ThenThrowsIllegalArgumentException() {
+    final Executable executable =
+        () ->
+            new PersonApplicationService(
+                personService, oldPersonalNumberProvider, null, featureFlagManager);
+    assertThrows(IllegalArgumentException.class, executable);
+  }
+
+  @Test
+  @SuppressWarnings("DataFlowIssue")
+  void constructor_WhenFeatureFlagManagerIsNull_ThenThrowsIllegalArgumentException() {
+    final Executable executable =
+        () ->
+            new PersonApplicationService(
+                personService, oldPersonalNumberProvider, newPersonalNumberProvider, null);
     assertThrows(IllegalArgumentException.class, executable);
   }
 
@@ -66,17 +102,37 @@ class PersonApplicationServiceTest {
   }
 
   @Test
-  void create_WhenEverythingIsOk_ThenInvokesTheExpectedMethodsAndReturnsAnEntity() {
+  void create_WhenFeatureFlagIsFalse_ThenInvokesTheOldMethodsAndReturnsAnEntity() {
     final var number = 1;
-    when(personalNumberProvider.generateNumber()).thenReturn(number);
+    when(featureFlagManager.isEnabled("personal-number-manager.enabled")).thenReturn(Boolean.FALSE);
+    when(oldPersonalNumberProvider.generateNumber()).thenReturn(number);
     when(personService.create(personData, number)).thenReturn(savedPerson);
 
     final var actualEntity = subject.create(personData);
     assertThat(actualEntity).isSameAs(savedPerson);
 
+    verifyNoMoreInteractions(featureFlagManager);
     verifyNoInteractions(savedPerson);
     verifyNoMoreInteractions(personService);
-    verifyNoMoreInteractions(personalNumberProvider);
+    verifyNoMoreInteractions(oldPersonalNumberProvider);
+    verifyNoInteractions(newPersonalNumberProvider);
+  }
+
+  @Test
+  void create_WhenFeatureFlagIsTrue_ThenInvokesTheNewMethodsAndReturnsAnEntity() {
+    final var number = 1;
+    when(featureFlagManager.isEnabled("personal-number-manager.enabled")).thenReturn(Boolean.TRUE);
+    when(newPersonalNumberProvider.generateNumber()).thenReturn(number);
+    when(personService.create(personData, number)).thenReturn(savedPerson);
+
+    final var actualEntity = subject.create(personData);
+    assertThat(actualEntity).isSameAs(savedPerson);
+
+    verifyNoMoreInteractions(featureFlagManager);
+    verifyNoInteractions(savedPerson);
+    verifyNoMoreInteractions(personService);
+    verifyNoInteractions(oldPersonalNumberProvider);
+    verifyNoMoreInteractions(newPersonalNumberProvider);
   }
 
   // -------------------- //
@@ -91,22 +147,48 @@ class PersonApplicationServiceTest {
   }
 
   @Test
-  void renumber_WhenEverythingIsOk_ThenInvokesTheExpectedMethodsAndReturnsAnEntity() {
+  void renumber_WhenFeatureFlagIsFalse_ThenInvokesTheOldMethodsAndReturnsAnEntity() {
     final var id = 1;
     final var oldNumber = 10;
     final var newNumber = 20;
 
+    when(featureFlagManager.isEnabled("personal-number-manager.enabled")).thenReturn(Boolean.FALSE);
     when(personService.find(id)).thenReturn(foundPerson);
     when(foundPerson.getNumber()).thenReturn(oldNumber);
-    when(personalNumberProvider.changeNumber(oldNumber)).thenReturn(newNumber);
+    when(oldPersonalNumberProvider.changeNumber(oldNumber)).thenReturn(newNumber);
     when(personService.renumber(foundPerson, newNumber)).thenReturn(savedPerson);
 
     final var actualEntity = subject.renumber(id);
     assertThat(actualEntity).isSameAs(savedPerson);
 
+    verifyNoMoreInteractions(featureFlagManager);
     verifyNoInteractions(savedPerson);
     verifyNoMoreInteractions(foundPerson);
     verifyNoMoreInteractions(personService);
-    verifyNoMoreInteractions(personalNumberProvider);
+    verifyNoMoreInteractions(oldPersonalNumberProvider);
+    verifyNoInteractions(newPersonalNumberProvider);
+  }
+
+  @Test
+  void renumber_WhenFeatureFlagIsTrue_ThenInvokesTheNewMethodsAndReturnsAnEntity() {
+    final var id = 1;
+    final var oldNumber = 10;
+    final var newNumber = 20;
+
+    when(featureFlagManager.isEnabled("personal-number-manager.enabled")).thenReturn(Boolean.TRUE);
+    when(personService.find(id)).thenReturn(foundPerson);
+    when(foundPerson.getNumber()).thenReturn(oldNumber);
+    when(newPersonalNumberProvider.changeNumber(oldNumber)).thenReturn(newNumber);
+    when(personService.renumber(foundPerson, newNumber)).thenReturn(savedPerson);
+
+    final var actualEntity = subject.renumber(id);
+    assertThat(actualEntity).isSameAs(savedPerson);
+
+    verifyNoMoreInteractions(featureFlagManager);
+    verifyNoInteractions(savedPerson);
+    verifyNoMoreInteractions(foundPerson);
+    verifyNoMoreInteractions(personService);
+    verifyNoInteractions(oldPersonalNumberProvider);
+    verifyNoMoreInteractions(newPersonalNumberProvider);
   }
 }

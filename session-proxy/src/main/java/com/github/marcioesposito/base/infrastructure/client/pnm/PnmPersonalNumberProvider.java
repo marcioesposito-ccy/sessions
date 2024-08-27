@@ -1,12 +1,12 @@
-package com.github.marcioesposito.base.infrastructure.client.crm;
+package com.github.marcioesposito.base.infrastructure.client.pnm;
 
 import com.github.marcioesposito.base.application.person.PersonalNumberProvider;
 import java.util.Random;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
-@Component("CRM")
-public class CrmPersonalNumberProvider implements PersonalNumberProvider {
+@Component("PNM")
+public class PnmPersonalNumberProvider implements PersonalNumberProvider {
 
   @Override
   public Integer generateNumber() {
@@ -15,11 +15,6 @@ public class CrmPersonalNumberProvider implements PersonalNumberProvider {
 
   @Override
   public Integer changeNumber(@NonNull final Integer number) {
-    final var next = new Random().nextInt();
-    if (next == number) {
-      return changeNumber(number);
-    } else {
-      return next;
-    }
+    return number + 1;
   }
 }
