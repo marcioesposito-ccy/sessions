@@ -10,3 +10,9 @@ spring:
   jpa:
     properties:
       hibernate.hbm2ddl.auto: create
+
+tcc:
+  feature-flag:
+    enabled: true
+    flags:
+      personal-number-manager.enabled: ${FF_PERSONAL_NUMBER_MANAGER_ENABLED}
