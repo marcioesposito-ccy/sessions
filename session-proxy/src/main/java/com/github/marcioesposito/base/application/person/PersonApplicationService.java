@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PersonApplicationService {
 
-  private static final String FEATURE_FLAG_NAME = "personal-number-manager.enabled";
+  private static final String FEATURE_FLAG_NAME = "new-personal-number-provider.enabled";
 
   @NonNull private final PersonService personService;
 

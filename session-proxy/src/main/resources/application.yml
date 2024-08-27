@@ -15,4 +15,4 @@ tcc:
   feature-flag:
     enabled: true
     flags:
-      personal-number-manager.enabled: ${FF_PERSONAL_NUMBER_MANAGER_ENABLED}
+      new-personal-number-provider.enabled: ${FF_NEW_PERSONAL_NUMBER_PROVIDER_ENABLED}
