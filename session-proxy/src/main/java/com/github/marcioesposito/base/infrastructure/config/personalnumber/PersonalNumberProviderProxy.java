@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class PersonalNumberProviderProxy implements PersonalNumberProvider {
 
-  private static final String FEATURE_FLAG_NAME = "personal-number-manager.enabled";
+  private static final String FEATURE_FLAG_NAME = "new-personal-number-provider.enabled";
 
   @NonNull private final FeatureFlagManager featureFlagManager;
 
@@ -17,7 +17,7 @@ class PersonalNumberProviderProxy implements PersonalNumberProvider {
   @NonNull private final PersonalNumberProvider newPersonalNumberProvider;
 
   @Override
-  public Integer generateNumber() {
+  public int generateNumber() {
     if (featureFlagManager.isEnabled(FEATURE_FLAG_NAME)) {
       return newPersonalNumberProvider.generateNumber();
     } else {
@@ -26,7 +26,7 @@ class PersonalNumberProviderProxy implements PersonalNumberProvider {
   }
 
   @Override
-  public Integer changeNumber(@NonNull final Integer number) {
+  public int changeNumber(final int number) {
     if (featureFlagManager.isEnabled(FEATURE_FLAG_NAME)) {
       return newPersonalNumberProvider.changeNumber(number);
     } else {

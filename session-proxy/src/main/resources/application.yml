@@ -10,3 +10,9 @@ spring:
   jpa:
     properties:
       hibernate.hbm2ddl.auto: create
+
+tcc:
+  feature-flag:
+    enabled: true
+    flags:
+      new-personal-number-provider.enabled: ${FF_NEW_PERSONAL_NUMBER_PROVIDER_ENABLED}
