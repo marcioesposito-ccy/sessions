@@ -10,33 +10,33 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PersonService {
 
-  @NonNull private final PersonAssembler assembler;
+  @NonNull private final PersonAssembler personAssembler;
 
-  @NonNull private final PersonRepository repository;
+  @NonNull private final PersonRepository personRepository;
 
   public List<Person> findAll() {
-    return repository.findAll();
+    return personRepository.findAll();
   }
 
   public Person find(@NonNull final Integer id) {
-    return repository.findById(id).orElseThrow(PersonNotFoundException::new);
+    return personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
   }
 
   public Person create(@NonNull final PersonData data, @NonNull final Integer number) {
-    return saveAsUnique(assembler.assemble(data, number));
+    return saveAsUnique(personAssembler.assemble(data, number));
   }
 
   public Person renumber(@NonNull final Person entity, @NonNull final Integer number) {
-    return repository.save(assembler.assemble(entity, number));
+    return personRepository.save(personAssembler.assemble(entity, number));
   }
 
   public void delete(@NonNull final Integer id) {
-    repository.delete(find(id));
+    personRepository.delete(find(id));
   }
 
   private Person saveAsUnique(final Person entity) {
     try {
-      return repository.save(entity);
+      return personRepository.save(entity);
     } catch (Exception e) {
       if (e.getMessage().contains(UniqueKeys.UK1)) {
         throw new PersonConflictException(e);

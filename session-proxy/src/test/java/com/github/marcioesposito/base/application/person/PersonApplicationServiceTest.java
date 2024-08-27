@@ -21,19 +21,19 @@ class PersonApplicationServiceTest {
 
   private PersonApplicationService subject;
 
-  @Mock private Person foundEntity;
+  @Mock private Person foundPerson;
 
-  @Mock private Person savedEntity;
+  @Mock private Person savedPerson;
 
-  @Mock private PersonData data;
+  @Mock private PersonData personData;
 
-  @Mock private PersonService service;
+  @Mock private PersonService personService;
 
-  @Mock private PersonalNumberProvider provider;
+  @Mock private PersonalNumberProvider personalNumberProvider;
 
   @BeforeEach
   void onBeforeEach() {
-    subject = new PersonApplicationService(service, provider);
+    subject = new PersonApplicationService(personService, personalNumberProvider);
   }
 
   // ----------------------- //
@@ -43,14 +43,14 @@ class PersonApplicationServiceTest {
   @Test
   @SuppressWarnings("DataFlowIssue")
   void constructor_WhenPersonServiceIsNull_ThenThrowsIllegalArgumentException() {
-    final Executable executable = () -> new PersonApplicationService(null, provider);
+    final Executable executable = () -> new PersonApplicationService(null, personalNumberProvider);
     assertThrows(IllegalArgumentException.class, executable);
   }
 
   @Test
   @SuppressWarnings("DataFlowIssue")
   void constructor_WhenPersonalNumberProviderIsNull_ThenThrowsIllegalArgumentException() {
-    final Executable executable = () -> new PersonApplicationService(service, null);
+    final Executable executable = () -> new PersonApplicationService(personService, null);
     assertThrows(IllegalArgumentException.class, executable);
   }
 
@@ -68,15 +68,15 @@ class PersonApplicationServiceTest {
   @Test
   void create_WhenEverythingIsOk_ThenInvokesTheExpectedMethodsAndReturnsAnEntity() {
     final var number = 1;
-    when(provider.generateNumber()).thenReturn(number);
-    when(service.create(data, number)).thenReturn(savedEntity);
+    when(personalNumberProvider.generateNumber()).thenReturn(number);
+    when(personService.create(personData, number)).thenReturn(savedPerson);
 
-    final var actualEntity = subject.create(data);
-    assertThat(actualEntity).isSameAs(savedEntity);
+    final var actualEntity = subject.create(personData);
+    assertThat(actualEntity).isSameAs(savedPerson);
 
-    verifyNoInteractions(savedEntity);
-    verifyNoMoreInteractions(service);
-    verifyNoMoreInteractions(provider);
+    verifyNoInteractions(savedPerson);
+    verifyNoMoreInteractions(personService);
+    verifyNoMoreInteractions(personalNumberProvider);
   }
 
   // -------------------- //
@@ -96,17 +96,17 @@ class PersonApplicationServiceTest {
     final var oldNumber = 10;
     final var newNumber = 20;
 
-    when(service.find(id)).thenReturn(foundEntity);
-    when(foundEntity.getNumber()).thenReturn(oldNumber);
-    when(provider.changeNumber(oldNumber)).thenReturn(newNumber);
-    when(service.renumber(foundEntity, newNumber)).thenReturn(savedEntity);
+    when(personService.find(id)).thenReturn(foundPerson);
+    when(foundPerson.getNumber()).thenReturn(oldNumber);
+    when(personalNumberProvider.changeNumber(oldNumber)).thenReturn(newNumber);
+    when(personService.renumber(foundPerson, newNumber)).thenReturn(savedPerson);
 
     final var actualEntity = subject.renumber(id);
-    assertThat(actualEntity).isSameAs(savedEntity);
+    assertThat(actualEntity).isSameAs(savedPerson);
 
-    verifyNoInteractions(savedEntity);
-    verifyNoMoreInteractions(foundEntity);
-    verifyNoMoreInteractions(service);
-    verifyNoMoreInteractions(provider);
+    verifyNoInteractions(savedPerson);
+    verifyNoMoreInteractions(foundPerson);
+    verifyNoMoreInteractions(personService);
+    verifyNoMoreInteractions(personalNumberProvider);
   }
 }
